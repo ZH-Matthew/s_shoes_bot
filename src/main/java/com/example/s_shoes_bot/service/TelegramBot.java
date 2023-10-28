@@ -10,9 +10,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
-@Slf4j
-@Component
-public class TelegramBot extends TelegramLongPollingBot {
+@Slf4j //из библиотеки lombok реализует логирование через переменную log.
+@Component //аннотация позволяет автоматически создать экземпляр
+public class TelegramBot extends TelegramLongPollingBot {  //есть еще класс WebHookBot (разница в том что WebHook уведомляет нас каждый раз при написании сообщения пользователе, LongPolling сам проверяет не написали ли ему (он более простой)
 
     @Autowired
     final BotConfig config;
@@ -21,16 +21,19 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.config = config;
     }
 
+    //реализация метода LongPooling
     @Override
     public String getBotUsername() {
         return config.getBotName();
     }
 
+    //реализация метода LongPooling
     @Override
     public String getBotToken() {
         return config.getToken();
     }
 
+    //реализация основного метода общения с пользователем (главный метод приложения)
     @Override
     public void onUpdateReceived(Update update) {
 
@@ -52,6 +55,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void startCommandReceived(long chatId, String name){
         String answer = "Привет, " + name + ", мы вернем твою обувь с небес на землю!";
         sendMessage(chatId, answer);
+        log.info("Replied to user "+ name);                     //лог о том что мы ответили пользователю
     }
 
     private void sendMessage(long chatId, String textToSend) {
@@ -62,7 +66,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         } catch (TelegramApiException e){
-
+            log.error("Error occurred "+ e.getMessage());
         }
     }
 }

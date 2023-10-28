@@ -7,7 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 
 
 @Configuration
-@Data
+@Data //из библиотеки Lombok, реализует геттеры /сеттеры, переопределяет tostring
 public class BotConfig {
 
     @Value("${bot.name}")

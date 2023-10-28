@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-@Slf4j
+@Slf4j  //из библиотеки lombok реализует логирование через переменную log.
 @Component
 public class BotInitializer {
 
@@ -24,7 +24,7 @@ public class BotInitializer {
         try{
             telegramBotsApi.registerBot(bot);
         }catch (TelegramApiException e){
-
+            log.error("Error occurred "+ e.getMessage());               //логирование с помощью библиотеки Slf4j
         }
     }
 
