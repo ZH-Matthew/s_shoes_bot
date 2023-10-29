@@ -23,21 +23,25 @@ public class TelegramBot extends TelegramLongPollingBot {  //есть еще к�
     @Autowired
     final BotConfig config;
 
-    static final String HELP_TEXT = "Основные команды:\n"+ // \n - переносит текст на новую строчку
-            "1. /start - приветственное сообщение пользователю \n"+
-            "2. /mydata - просмотреть данные о себе \n" +
-            "3. /settings - открыть свои настройки";
+    static final String ADMIN_CHAT_ID = "123";
+
+    static final String INFO_TEXT = "Привет! Я бот s.shoes! Пока что я нахожусь в стадии разработки, но уже умею: \n"+ // \n - переносит текст на новую строчку
+            "/start - здесь я тебя обниму-приподниму, потому что для меня ты лучший пользователь \n"+
+            "/service - здесь я расскажу о том какие услуги есть в мастерской, а также сориентирую по стоимости \n" +
+            "/makeAnAppointment - здесь я помогу записаться на наши услуги  \n" +
+            "/contacts - здесь я покажу наши контакты и помогу тебе до нас добраться \n" +
+            "/portfolio - здесь я предоставлю тебе ссылку на страницу в Instagram, там происходит магия!";
 
     public TelegramBot(BotConfig config){
         this.config = config;
         //создание кнопки "меню" с командами и их кратким описанием
         List<BotCommand> listOfCommands = new ArrayList<>();
-        listOfCommands.add(new BotCommand("/start", "get a welcome message"));
-        listOfCommands.add(new BotCommand("/mydata", "get your data stored"));
-        listOfCommands.add(new BotCommand("/deletedata", "delete my data"));
-        listOfCommands.add(new BotCommand("/help", "info how to use this bot"));
-        listOfCommands.add(new BotCommand("/settings", "set your preferences"));
-
+        listOfCommands.add(new BotCommand("/start", "приветственное сообщение"));
+        listOfCommands.add(new BotCommand("/service", "услуги мастерской"));
+        listOfCommands.add(new BotCommand("/contacts", "наши контакты и где мы находимся"));
+        listOfCommands.add(new BotCommand("/makeAnAppointment", "записаться на сервис"));
+        listOfCommands.add(new BotCommand("/portfolio", "ваша спасённая обувь"));
+        listOfCommands.add(new BotCommand("/info", "подробная информация"));
         try {
             this.execute(new SetMyCommands(listOfCommands,new BotCommandScopeDefault(),null));
         }catch (TelegramApiException e){
@@ -67,24 +71,80 @@ public class TelegramBot extends TelegramLongPollingBot {  //есть еще к�
 
             switch (messageText){
                 case "/start":
-                    startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                    startCommand(chatId, update.getMessage().getChat().getFirstName());
                     break;
-                case "/help":
-                    sendMessage(chatId, HELP_TEXT);
+                case "/service":
+                    serviceCommand(chatId);
+                    break;
+                case "/contacts":
+                    contactsCommand(chatId);
+                    break;
+                case "/makeAnAppointment":
+                    sendMessage(chatId,"здесь будет запись на услуги");
+                    break;
+                case "/portfolio":
+                    sendMessage(chatId,"https://www.instagram.com/s.shoes.vrn/");
+                    break;
+                case "/info":
+                    sendMessage(chatId, INFO_TEXT);
+                    break;
+                case "/gis":
+                    sendMessage(chatId, "https://2gis.ru/voronezh/firm/70000001075216563");
+                    break;
+                case "/yandex":
+                    sendMessage(chatId, "https://yandex.ru/maps/org/s_shoes/61886721382/?ll=39.189714%2C51.657149&z=16");
                     break;
                 default:
-                    sendMessage(chatId,"Опаньки! Пока бот находится на стадии разработки");
+                    sendMessage(chatId,"Я пока не умею отвечать на такие сообщения! Мои команды: /info ");
             }
         }
 
     }
 
-    private void startCommandReceived(long chatId, String name){
+    //метод для приветственного сообщения
+    private void startCommand(long chatId, String name){
         String answer = "Привет, " + name + ", мы вернем твою обувь с небес на землю!";
         sendMessage(chatId, answer);
         log.info("Replied to user "+ name);                     //лог о том что мы ответили пользователю
     }
 
+    private void serviceCommand(long chatId){
+        String answer = "Наши услуги:\n"+
+                "Растяжка:                      от_\n"+
+                "Реставрация:                   от_\n"+
+                "Покраска:                      от_\n"+
+                "Замена задников:               от_\n"+
+                "Профилактика:                  от_\n"+
+                "Набойки:                       от_\n"+
+                "Замена молний/застежек:        от_\n"+
+                "Механическая чистка            от_\n" +
+                "обуви из замши:                от_\n"+
+                "Уход за классической обувью:   от_\n";
+        sendMessage(chatId, answer);
+    }
+
+    private void contactsCommand(long chatId){
+        String answer = "Мы находимся по адресу:\n"+
+                "г. Воронеж ул.Кирова 24 этаж 1 \n"+
+                "Вход сто стороны Красноармейского бульвара \n"+
+                "\n"+
+                "Как добраться:\n"+
+                "/gis - на картах 2Gis\n"+
+                "/yandex - на Яндекс картах \n"+
+                "\n"+
+                "Контактные номера: +79042110727 \n"+
+                "                   +79525522646 \n"+
+                "Часы работы:                   \n"+
+                "ПН: 10:00–19:00            \n"+
+                "ВТ: 10:00–19:00            \n"+
+                "СР: 10:00–19:00            \n" +
+                "ПТ: 10:00–19:00            \n"+
+                "СБ: Выходной               \n"+
+                "ВС: Выходной               \n";
+        sendMessage(chatId, answer);
+    }
+
+    //метод для отправки сообщений
     private void sendMessage(long chatId, String textToSend) {
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
