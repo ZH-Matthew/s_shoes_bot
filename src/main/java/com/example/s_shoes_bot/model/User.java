@@ -3,6 +3,7 @@ package com.example.s_shoes_bot.model;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Entity(name = "usersData")
 public class User {
@@ -16,8 +17,8 @@ public class User {
     private String userName;
     private String phoneNumber;
     private String service;
-    private String date;
-    private Long chat_id;
+    private LocalDateTime date;
+    private Long chatId;
 
     public String getLastName() {
         return lastName;
@@ -59,19 +60,19 @@ public class User {
         this.service = service;
     }
 
-    public String getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
-    public Long getChat_id() {
-        return chat_id;
+    public Long getChatId() {
+        return chatId;
     }
 
-    public void setChat_id(Long chat_id) {
-        this.chat_id = chat_id;
+    public void setChatId(Long chat_id) {
+        this.chatId = chat_id;
     }
 }
