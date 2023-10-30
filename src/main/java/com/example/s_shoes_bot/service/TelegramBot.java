@@ -69,8 +69,11 @@ public class TelegramBot extends TelegramLongPollingBot {  //есть еще к�
                 for (User user : users) {
                     prepareAndSendMessage(user.getChatId(), textToSend);
                 }
-            } else {
+            } else if (messageText.startsWith("#")) {
+                registerUser(update.getMessage(),messageText);
+                prepareAndSendMessage(chatId, FINAL_REGISTRATION);
 
+            } else {
                 switch (messageText) {
                     case "/start":
                         startCommand(chatId, update.getMessage().getChat().getFirstName());
@@ -82,8 +85,7 @@ public class TelegramBot extends TelegramLongPollingBot {  //есть еще к�
                         prepareAndSendMessage(chatId, CONTACTS);
                         break;
                     case "/makeAnAppointment":
-                        prepareAndSendMessage(chatId, "здесь будет запись на услуги");
-                        registerUser(update.getMessage());
+                        prepareAndSendMessage(chatId, REGISTRATION);
                         break;
                     case "/portfolio":
                         prepareAndSendMessage(chatId, INSTAGRAM);
@@ -105,17 +107,21 @@ public class TelegramBot extends TelegramLongPollingBot {  //есть еще к�
     }
 
     //метод регистрации пользователя
-    private void registerUser(Message msg) {
+    private void registerUser(Message msg,String service) {
 
         var chatId = msg.getChatId();
         var chat = msg.getChat();
+        var phoneNumber = msg.getContact().getPhoneNumber();
 
         User user = new User();
         user.setChatId(chatId);
         user.setFirstName(chat.getFirstName());
         user.setLastName(chat.getLastName());
         user.setUserName(chat.getUserName());
-        /*user.setDate(new Timestamp(System.currentTimeMillis()));*/
+        java.time.LocalDateTime currentDateTime = java.time.LocalDateTime.now();
+        user.setDate(currentDateTime);
+        user.setPhoneNumber(phoneNumber);
+        user.setService(service);
 
         userRepository.save(user);
         log.info("user saved: " + user);
