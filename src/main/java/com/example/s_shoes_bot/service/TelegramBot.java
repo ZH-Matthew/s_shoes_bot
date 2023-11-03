@@ -4,18 +4,22 @@ import com.example.s_shoes_bot.model.User;
 import com.example.s_shoes_bot.repository.UserRepository;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static com.example.s_shoes_bot.service.Constants.*;
 
 
@@ -69,9 +73,10 @@ public class TelegramBot extends TelegramLongPollingBot {  //есть еще к�
                 for (User user : users) {
                     prepareAndSendMessage(user.getChatId(), textToSend);
                 }
-            } else if (messageText.startsWith("#")) {
-                registerUser(update.getMessage(),messageText);
+            } else if (messageText.startsWith("@")) {
+                registerUser(update,messageText);
                 prepareAndSendMessage(chatId, FINAL_REGISTRATION);
+                //сделать здесь отправку данных на
 
             } else {
                 switch (messageText) {
@@ -107,20 +112,22 @@ public class TelegramBot extends TelegramLongPollingBot {  //есть еще к�
     }
 
     //метод регистрации пользователя
-    private void registerUser(Message msg,String service) {
+    private void registerUser(Update update, String service) {
 
-        var chatId = msg.getChatId();
-        var chat = msg.getChat();
-        var phoneNumber = msg.getContact().getPhoneNumber();
+        Long chatId = update.getMessage().getChatId();
+        String firstName = update.getMessage().getChat().getFirstName();
+        String lastName = update.getMessage().getChat().getLastName();
+        String userName = update.getMessage().getChat().getUserName();
+        /*String phoneNumber = update.getMessage().getContact().getPhoneNumber();*/ //понять почему тут выскакивает NullPointer
 
         User user = new User();
         user.setChatId(chatId);
-        user.setFirstName(chat.getFirstName());
-        user.setLastName(chat.getLastName());
-        user.setUserName(chat.getUserName());
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUserName(userName);
         java.time.LocalDateTime currentDateTime = java.time.LocalDateTime.now();
         user.setDate(currentDateTime);
-        user.setPhoneNumber(phoneNumber);
+        /*user.setPhoneNumber(phoneNumber);*/
         user.setService(service);
 
         userRepository.save(user);
